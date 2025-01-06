@@ -1,5 +1,5 @@
 import circuit from '../circuit/target/circuit.json';
-import { BarretenbergBackend, BarretenbergVerifier as Verifier } from '@noir-lang/backend_barretenberg';
+import { UltraHonkBackend, BarretenbergVerifier as Verifier } from '@aztec/bb.js';
 import { Noir } from '@noir-lang/noir_js';
 
 function display(container, msg) {
@@ -11,7 +11,7 @@ function display(container, msg) {
 
 document.getElementById('submitGuess').addEventListener('click', async () => {
   try {
-    const backend = new BarretenbergBackend(circuit);
+    const backend = new UltraHonkBackend(circuit.bytecode);
     const noir = new Noir(circuit);
     const x = parseInt(document.getElementById('guessInput').value);
     const input = { x, y: 2 };

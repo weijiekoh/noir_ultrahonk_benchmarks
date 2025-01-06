@@ -13,7 +13,7 @@
     "vite": "^5.3.4"
   },
   "dependencies": {
-    "@noir-lang/backend_barretenberg": "^0.31.0",
-    "@noir-lang/noir_js": "^0.31.0"
+    "@aztec/bb.js": "0.66.0",
+    "@noir-lang/noir_js": "1.0.0-beta.0"
   }
 }
