@@ -2,13 +2,13 @@
 <head>
   <title>Noir / UltraHonk proof generation benchmarks</title>
   <style>
-    table, th, td {
-      border: 1px solid black;
-    }
+table, th, td {
+  border: 1px solid black;
+}
 
-    * {
-      font-family: monospace;
-    }
+* {
+  font-family: monospace;
+}
 
     td {
       padding: 5px;
@@ -22,6 +22,36 @@
 <body>
   <script type="module" src="/main.js"></script>
   <h1>Noir / UltraHonk benchmarks</h1>
+  <p>
+  This tool benchmarks the time it takes to generate UltraHonk proofs in the
+  browser for various circuit sizes and standard library black-box functions.
+
+  The circuits are the same as those benchmarked in <a href="https://github.com/Savio-Sou/noir-benchmarks">noir-benchmarks</a>.
+  </p>
+  <p>
+    nargo version 1.0.0-beta.0 was used to compile the circuits.
+  </p>
+  <p>
+    The file sizes of the noir-lang and bb dependencies are as follows. They
+    are downloaded in the background and are necessary for proof generation.
+    The compiled Noir circuits, however, are much smaller than these files.
+    <ul>
+      <li><em>noirc_abi_wasm_bg.wasm</em>: 1.66 MB</li>
+      <li><em>acvm_js_bg.wasm</em>: 2.01 MB</li>
+      <li><em>@aztec/bb.js</em>: 75.08 MB</li>
+    </ul>
+
+  </p>
+  <p>
+    Glossary:
+    <ul>
+      <li><em>Circuit</em>: The number of circuit constraints (a power of 2) or the name of the circuit which uses a standard library function.</li>
+      <li><em>Circuit size</em>: The uncompressed size of the compiled Noir program (which is a JSON file).</li>
+      <li><em>Witness computation</em>: The time taken to generate the witness using noir.execute().</li>
+      <li><em>Proof generation</em>: The time taken to generate the proof.</li>
+      <li><em>Proof valid?</em>: Whether the proof is valid.</li>
+    </ul>
+  </p>
   <div id="main">
   </div>
 </body>

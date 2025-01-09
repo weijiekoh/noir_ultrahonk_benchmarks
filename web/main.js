@@ -1,32 +1,28 @@
 import { UltraHonkBackend, BarretenbergVerifier as Verifier } from '@aztec/bb.js';
 import { Noir } from '@noir-lang/noir_js';
 
-import circuit_10 from '../circuits/2^10.json';
-import circuit_11 from '../circuits/2^11.json';
-import circuit_12 from '../circuits/2^12.json';
-import circuit_13 from '../circuits/2^13.json';
-import circuit_14 from '../circuits/2^14.json';
-import circuit_15 from '../circuits/2^15.json';
-import circuit_16 from '../circuits/2^16.json';
-import circuit_17 from '../circuits/2^17.json';
-import circuit_18 from '../circuits/2^18.json';
-import circuit_19 from '../circuits/2^19.json';
-import circuit_ecdsa_secp256k1 from '../circuits/ecdsa_secp256k1.json';
 import ecdsa_secp256k1_input from '../circuits/ecdsa_secp256k1_input.json';
+import compute_merkle_root_depth_4_input from '../circuits/compute_merkle_root_depth_4_input.json';
+import compute_merkle_root_depth_32_input from '../circuits/compute_merkle_root_depth_32_input.json';
+import keccak256_32B_100_times_input from '../circuits/keccak256_32B_100_times_input.json';
+import keccak256_32B_input from '../circuits/keccak256_32B_input.json';
+import keccak256_532B_10_times_input from '../circuits/keccak256_532B_10_times_input.json';
+import keccak256_532B_input from '../circuits/keccak256_532B_input.json';
 
-const circuits = {
-    10: circuit_10,
-    11: circuit_11,
-    12: circuit_12,
-    13: circuit_13,
-    14: circuit_14,
-    15: circuit_15,
-    16: circuit_16,
-    17: circuit_17,
-    18: circuit_18,
-    19: circuit_19,
-    ecdsa_secp256k1: circuit_ecdsa_secp256k1,
-};
+const primitiveCircuits = [
+    'ecdsa_secp256k1',
+    'compute_merkle_root_depth_4',
+    'compute_merkle_root_depth_32',
+    'keccak256_32B',
+    'keccak256_32B_100_times',
+    'keccak256_532B',
+    'keccak256_532B_10_times',
+];
+
+let staticPath = '/static/'
+if (!import.meta.env.PROD) {
+    staticPath = 'http://localhost:8001/'
+}
 
 const start = 10;
 const end = 20;
@@ -36,7 +32,16 @@ function round(num, precision) {
     return Math.round(num * factor) / factor
 }
 
-async function calculateProofs(log_size, circuit, input) {
+async function calculateProofs(log_size, circuitPath, input) {
+    const resp = await fetch(circuitPath);
+    const circuit = await resp.json();
+    const circuitSize = await resp.headers.get("content-length")
+
+    const circuitSizeMb = circuitSize / 1024 / 1024
+
+    const circuitSizeComponent = document.getElementById('circuit_size_' + log_size)
+    circuitSizeComponent.innerHTML = round(circuitSizeMb, 3)
+
     const numRuns = 1;
     const backend = new UltraHonkBackend(circuit.bytecode)
     const noir = new Noir(circuit);
@@ -45,6 +50,7 @@ async function calculateProofs(log_size, circuit, input) {
         input = { x: 1, y: 2 };
     }
 
+    // Generate the witness
     const startWitnessCalc = Date.now();
     const { witness } = await noir.execute(input);
     const endWitnessCalc = Date.now();
@@ -54,6 +60,7 @@ async function calculateProofs(log_size, circuit, input) {
     const witnessCalcTimeComponent = document.getElementById('witness_calc_' + log_size)
     witnessCalcTimeComponent.innerHTML = round(timeTakenWitnessCalc, 3)
 
+    // Generate the proof
     const startProofGen = Date.now();
     const proof = await backend.generateProof(witness);
     const endProofGen = Date.now();
@@ -62,6 +69,7 @@ async function calculateProofs(log_size, circuit, input) {
     const proofGenTimeComponent = document.getElementById('proofgen_time' + log_size)
     proofGenTimeComponent.innerHTML = round(timeTakenProofGen, 3)
 
+    // Verify the proof
     const isValid = await backend.verifyProof(proof)
     const resultComponent = document.getElementById('valid_' + log_size)
 
@@ -86,8 +94,17 @@ async function main() {
     genAllBtn.addEventListener("click", async () => {
         setBtnStatus(false)
         for (let i = start; i < end; i++) {
-            await calculateProofs(i, circuits[i], null)
+            const circuitPath = staticPath + '2^' + i + '.json'
+            await calculateProofs(i, circuitPath, null)
         }
+
+        for (let i = 0; i < primitiveCircuits.length; i++) {
+            const circuitPath = staticPath + primitiveCircuits[i] + '.json'
+            const input = await fetch(staticPath + primitiveCircuits[i] + '_input.json').then(r => r.json())
+            await calculateProofs(primitiveCircuits[i], circuitPath, input)
+        }
+
+        // TODO: do so for primitive circuits
         setBtnStatus(true)
     })
     p.appendChild(genAllBtn)
@@ -110,6 +127,10 @@ async function main() {
     th0.innerHTML = "Circuit"
     theadTr.appendChild(th0)
 
+    const thCircuitSize = document.createElement("th")
+    thCircuitSize.innerHTML = "Circuit size (MB)"
+    theadTr.appendChild(thCircuitSize)
+
     const thWitnessCalc = document.createElement("th")
     thWitnessCalc.innerHTML = "Witness computation (s)"
     theadTr.appendChild(thWitnessCalc)
@@ -131,6 +152,12 @@ async function main() {
     }
 
     appendRow("ecdsa_secp256k1", tbody, false, ecdsa_secp256k1_input)
+    appendRow("compute_merkle_root_depth_4", tbody, false, compute_merkle_root_depth_4_input)
+    appendRow("compute_merkle_root_depth_32", tbody, false, compute_merkle_root_depth_32_input)
+    appendRow("keccak256_32B", tbody, false, keccak256_32B_input)
+    appendRow("keccak256_32B_100_times", tbody, false, keccak256_32B_100_times_input)
+    appendRow("keccak256_532B", tbody, false, keccak256_532B_input)
+    appendRow("keccak256_532B_10_times", tbody, false, keccak256_532B_10_times_input)
 }
 
 function appendRow(i, tbody, isCircuitSize, input) {
@@ -141,8 +168,13 @@ function appendRow(i, tbody, isCircuitSize, input) {
     genProofBtn.className = "gen_proof_btn"
     genProofBtn.innerHTML = "Generate"
     genProofBtn.addEventListener("click", async () => {
+        let circuitPath = staticPath + '2^' + i + '.json'
+        if (!isCircuitSize) {
+            circuitPath = staticPath + i + '.json'
+        }
+
         setBtnStatus(false)
-        await calculateProofs(i, circuits[i], input)
+        await calculateProofs(i, circuitPath, input)
         setBtnStatus(true)
     })
     tdG.appendChild(genProofBtn)
@@ -157,6 +189,11 @@ function appendRow(i, tbody, isCircuitSize, input) {
         tdConstraints.innerHTML = i
     }
     tr.appendChild(tdConstraints)
+    tbody.appendChild(tr)
+
+    const tdCircuitSize = document.createElement("td")
+    tdCircuitSize.id = "circuit_size_" + i
+    tr.appendChild(tdCircuitSize)
     tbody.appendChild(tr)
 
     const tdWitnessCalc = document.createElement("td")

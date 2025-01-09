@@ -31,7 +31,7 @@ Install dependencies with
 npm install
 ```
 
-Run app with:
+Run the app with:
 
 ```bash
 npm run dev
