@@ -1,15 +1,8 @@
 FROM node:22-bookworm-slim
 
-RUN apt -y update && \
-    apt -y install git
-
 WORKDIR /
 
 WORKDIR /nb
-
-#RUN apt -y update && \
-    #apt -y install python3 build-essential && \
-    #apt -y clean
 
 COPY ./web /nb/web
 COPY ./circuits /nb/circuits

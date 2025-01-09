@@ -35,7 +35,9 @@ function round(num, precision) {
 async function calculateProofs(log_size, circuitPath, input) {
     const resp = await fetch(circuitPath);
     const circuit = await resp.json();
-    const circuitSize = await resp.headers.get("content-length")
+
+    // The bytelength of the Base64-encoded circuit
+    const circuitSize = circuit.bytecode.length * 6
 
     const circuitSizeMb = circuitSize / 1024 / 1024
 
@@ -128,7 +130,7 @@ async function main() {
     theadTr.appendChild(th0)
 
     const thCircuitSize = document.createElement("th")
-    thCircuitSize.innerHTML = "Circuit size (MB)"
+    thCircuitSize.innerHTML = "Bytecode size (MB)"
     theadTr.appendChild(thCircuitSize)
 
     const thWitnessCalc = document.createElement("th")
