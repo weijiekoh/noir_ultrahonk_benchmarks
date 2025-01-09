@@ -1,10 +1,13 @@
-# Tiny NoirJS app
+# Noir and UltraHonk benchmarks
 
-This repo contains the full code from [this](https://noir-lang.org/docs/tutorials/noirjs_app) Noir docs page.
+This web app provides benchmarks for the UltraHonk prover in the browser on various Noir circuits.
 
-It has been modified to work with Nargo version 1.0.0-beta.0. `package.json` has been modified
-to use `@aztec/bb.js` 0.66.0 instead of `@noir-lang/backend_barretenberg`. It
-also uses `UltraHonkBackend` instead of `BarretenbergBackend` (see `main.js`).
+This repo was adapted from
+[this](https://noir-lang.org/docs/tutorials/noirjs_app) Noir docs page. It has
+been modified to work with Nargo version 1.0.0-beta.0. `package.json` has been
+modified to use `@aztec/bb.js` 0.66.0 instead of
+`@noir-lang/backend_barretenberg`. It also uses `UltraHonkBackend` instead of
+`BarretenbergBackend` (see `main.js`).
 
 ## Noir project
 
@@ -19,7 +22,7 @@ nargo compile
 ## Vite project
 
 ```bash
-cd vite-project
+cd web
 ```
 
 Install dependencies with
