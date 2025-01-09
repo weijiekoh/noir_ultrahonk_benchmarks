@@ -12,7 +12,7 @@ services:
     image: nginx:alpine
     container_name: nb-nginx-proxy
     ports:
-      - "81:80"
+      - "1024:80"
     depends_on:
       - app
     networks:
