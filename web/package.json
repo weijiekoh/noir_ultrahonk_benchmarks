@@ -15,7 +15,7 @@
     "vite": "^5.3.4"
   },
   "dependencies": {
-    "@aztec/bb.js": "0.63.1",
+    "@aztec/bb.js": "0.69.1",
     "@noir-lang/noir_js": "1.0.0-beta.0"
   }
 }
