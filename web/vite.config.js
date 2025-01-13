@@ -20,6 +20,12 @@ const wasmContentTypePlugin = {
 };
 
 export default defineConfig({
+    server: {
+        headers: {
+            'Cross-Origin-Embedder-Policy': 'require-corp',
+            'Cross-Origin-Opener-Policy': 'same-origin',
+        }
+    },
     build: {
         target: 'esnext',
     },
@@ -38,15 +44,15 @@ export default defineConfig({
         {
             name: "configure-response-headers",
             configureServer: (server) => {
-            server.middlewares.use((req, res, next) => {
-                const userAgent = req.headers['user-agent'];
-                // Firefox doesn't support multi-threaded WASM when the binary is inside JS
-                if(typeof userAgent === 'string' && userAgent.indexOf('Firefox') === -1) {
-                    res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-                    res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-                }
-                next();
-            });
+                server.middlewares.use((req, res, next) => {
+                    const userAgent = req.headers['user-agent'];
+                    // Firefox doesn't support multi-threaded WASM when the binary is inside JS
+                    if (typeof userAgent === 'string' && userAgent.indexOf('Firefox') === -1) {
+                        res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+                        res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+                    }
+                    next();
+                });
             },
         },
     ],

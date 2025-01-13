@@ -32,7 +32,7 @@ function round(num, precision) {
     return Math.round(num * factor) / factor
 }
 
-async function calculateProofs(log_size, circuitPath, input) {
+async function calculateProofs(log_size, circuitPath, input, threads) {
     const resp = await fetch(circuitPath);
     const circuit = await resp.json();
 
@@ -45,7 +45,7 @@ async function calculateProofs(log_size, circuitPath, input) {
     circuitSizeComponent.innerHTML = round(circuitSizeMb, 3)
 
     const numRuns = 1;
-    const backend = new UltraHonkBackend(circuit.bytecode)
+    const backend = new UltraHonkBackend(circuit.bytecode, { threads })
     const noir = new Noir(circuit);
 
     if (input === null) {
@@ -81,7 +81,7 @@ async function calculateProofs(log_size, circuitPath, input) {
 function setBtnStatus(enabled) {
     const genProofBtns = document.getElementsByClassName('gen_proof_btn')
     for (let i = 0; i < genProofBtns.length; i++) {
-        genProofBtns[i].disabled = !enabled 
+        genProofBtns[i].disabled = !enabled
     }
 }
 
@@ -97,13 +97,13 @@ async function main() {
         setBtnStatus(false)
         for (let i = start; i < end; i++) {
             const circuitPath = staticPath + '2^' + i + '.json'
-            await calculateProofs(i, circuitPath, null)
+            await calculateProofs(i, circuitPath, null, navigator.hardwareConcurrency)
         }
 
         for (let i = 0; i < primitiveCircuits.length; i++) {
             const circuitPath = staticPath + primitiveCircuits[i] + '.json'
             const input = await fetch(staticPath + primitiveCircuits[i] + '_input.json').then(r => r.json())
-            await calculateProofs(primitiveCircuits[i], circuitPath, input)
+            await calculateProofs(primitiveCircuits[i], circuitPath, input, navigator.hardwareConcurrency)
         }
 
         // TODO: do so for primitive circuits
